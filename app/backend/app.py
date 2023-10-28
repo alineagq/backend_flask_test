@@ -1,16 +1,16 @@
 from flask import Flask, request, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
-from os import path, environ
-
+from os import environ
+from flask_cors import CORS
+import json
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DB_URL')
+CORS(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+mysqlconnector://alinequeiroz:YWxpbmVxdWVp@localhost:3306/alinequeiroz"
 db = SQLAlchemy(app)
-
 
 class People(db.Model):
     __tablename__ = "pessoas"
-
     id_pessoa = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
     rg = db.Column(db.String(100), nullable=False)
@@ -25,27 +25,22 @@ class People(db.Model):
             "nome": self.nome,
             "rg": self.rg,
             "cpf": self.cpf,
-            "data_nascimento": str(self.data_nascimento),
-            "data_admissao": str(self.data_admissao),
+            "data_nascimento": self.data_nascimento,
+            "data_admissao": self.data_admissao,
             "funcao": self.funcao,
         }
-
-
-@app.route("/info", methods=["GET"])
-def info():
-    return make_response(jsonify({"message": "API de pessoas"}), 200)
-
 
 @app.route("/pessoas", methods=["GET"])
 def get_pessoas():
     try:
         pessoas = People.query.all()
-        return make_response(jsonify([People.json() for People in pessoas]), 200)
+        response_data = [pessoa.json() for pessoa in pessoas]
+
+        return make_response(jsonify(response_data), 200, {'Content-Type': 'application/json; charset=utf-8'})
     except Exception as e:
         return make_response(
-            jsonify({"message": f"Não foi possivel listar pessoas: {str(e)}"}), 500
+            jsonify({"message": f"Não foi possível listar pessoas: {str(e)}"}), 500
         )
-
 
 @app.route("/pessoas/<int:id>", methods=["GET"])
 def get_pessoa(id):
@@ -82,15 +77,15 @@ def update_pessoa(id):
         entry = People.query.get(id)
         if entry:
             data = request.get_json()
-            entry.name = data["nome"]
+            entry.nome = data["nome"]  # Corrected attribute name
             entry.rg = data["rg"]
             entry.cpf = data["cpf"]
             entry.data_nascimento = data["data_nascimento"]
             entry.data_admissao = data["data_admissao"]
-            entry.role = data["funcao"]
+            entry.funcao = data["funcao"]  # Corrected attribute name
             db.session.commit()
             return make_response(
-                jsonify({"message": f"Pessoa {entry.name} atualizada com sucesso"}), 200
+                jsonify({"message": f"Pessoa {entry.nome} atualizada com sucesso"}), 200
             )
         return make_response(jsonify({"message": "Pessoa nao encontrada"}), 404)
     except Exception as e:
@@ -107,7 +102,7 @@ def delete_pessoa(id):
             db.session.delete(entry)
             db.session.commit()
             return make_response(
-                jsonify({"message": f"Pessoa {entry.name} deletada com sucesso"}), 200
+                jsonify({"message": f"Pessoa {entry.nome} deletada com sucesso"}), 200
             )
         return make_response(jsonify({"message": "Pessoa nao encontrada"}), 404)
     except Exception as e:
