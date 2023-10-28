@@ -1,5 +1,18 @@
 version: '3'
 services:
+  mysql:
+    container_name: mysql
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: alinequeiroz
+      MYSQL_USER: alinequeiroz
+      MYSQL_PASSWORD: YWxpbmVxdWVp
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysqldata:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
   web:
     container_name: flask_app
     image: dockerhub-flask_live_app:1.0.0
@@ -15,20 +28,17 @@ services:
       - "5000:5000"
     depends_on:
       - mysql
-
-  mysql:
-    container_name: mysql
-    image: mysql:latest
-    environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: alinequeiroz
-      MYSQL_USER: alinequeiroz
-      MYSQL_PASSWORD: YWxpbmVxdWVp
+    restart: always
+  react:
+    container_name: react_app
+    build:
+      context: .
+      dockerfile: Dockerfile.react
     ports:
-      - "3306:3306"
-    volumes:
-      - mysqldata:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - "3000:3000"
+    depends_on:
+      - web
+    restart: always
 
 volumes:
   mysqldata: {}
