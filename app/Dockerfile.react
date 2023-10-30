@@ -2,12 +2,12 @@ FROM node:14-alpine
 
 WORKDIR /app
 
-COPY package.json ./
+COPY frontend/package.json ./
 
 RUN npm install
 
 COPY frontend/public ./public
-COPY frontend/srcs ./src
+COPY frontend/src ./src
 
 EXPOSE 3000
 

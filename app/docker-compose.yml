@@ -8,6 +8,7 @@ services:
       MYSQL_DATABASE: alinequeiroz
       MYSQL_USER: alinequeiroz
       MYSQL_PASSWORD: YWxpbmVxdWVp
+      MYSQL_HOST: mysql
     ports:
       - "3306:3306"
     volumes:
@@ -23,7 +24,8 @@ services:
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - DB_URL=mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}
+      - MYSQL_HOST=${MYSQL_HOST}
+      - DB_URL=mysql+mysqlconnector://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_HOST}:3306/${MYSQL_DATABASE}
     ports:
       - "5000:5000"
     depends_on:

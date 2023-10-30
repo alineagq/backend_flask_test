@@ -6,7 +6,12 @@ import json
 
 app = Flask(__name__)
 CORS(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+mysqlconnector://alinequeiroz:YWxpbmVxdWVp@localhost:3306/alinequeiroz"
+DB_HOST = environ.get("MYSQL_HOST")
+DB_USER = environ.get("MYSQL_USER")
+DB_PASSWORD = environ.get("MYSQL_PASSWORD")
+DB_NAME = environ.get("MYSQL_DATABASE")
+DB_URL = f"mysql+mysqlconnector://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:3306/{DB_NAME}"
+app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
 db = SQLAlchemy(app)
 
 class People(db.Model):
